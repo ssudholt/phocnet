@@ -40,3 +40,7 @@ def build_phoc(words, phoc_unigrams, unigram_levels):
                         feat_vec_index = sum([l for l in unigram_levels if l < level]) * len(phoc_unigrams) + region * len(phoc_unigrams) + char_index
                         phocs[word_index, feat_vec_index] = 1
     return phocs
+
+def unigrams_from_word_list(word_list):
+    unigrams = list(set(''.join([word.get_transcription() for word in word_list])))
+    return ''.join(sorted(unigrams))
