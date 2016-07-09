@@ -3,16 +3,31 @@ Created on Jul 8, 2016
 
 @author: ssudholt
 '''
+import logging
+
 from caffe import NetSpec
 from caffe import layers as L
 from caffe import params as P
+from caffe.io import caffe_pb2
 
 class ModelProtoGenerator(object):
     '''
     Class for generating Caffe CNN models through protobuffer files.
     '''
-    def __init__(self):
-        pass
+    def __init__(self, initialization='msra', use_cudnn_engine=True):
+        # set up the engines
+        self.conv_engine = None
+        self.spp_engine = None
+        if use_cudnn_engine:
+            self.conv_engine = P.Convolution.CUDNN
+            self.spp_engine = P.SPP.CUDNN    
+        else:
+            self.conv_engine = P.Convolution.CAFFE
+            self.spp_engine = P.SPP.CAFFE
+        self.phase_train = caffe_pb2.Phase.DESCRIPTOR.values_by_name['TRAIN'].number
+        self.phase_test = caffe_pb2.Phase.DESCRIPTOR.values_by_name['TEST'].number
+        self.initialization = initialization
+        self.logger = logging.getLogger(self.__class__.__name__)
     
     def conv_relu(self, bottom, nout, kernel_size=3, stride=1, pad=1, relu_in_place=True):
         '''
