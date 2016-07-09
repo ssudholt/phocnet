@@ -12,6 +12,9 @@ import numpy as np
 from phocnet.io.word_container import DocImageWordContainer
 
 class XMLReader(object):
+    '''
+    Class for reading a training and test set from two READ-style XML files.
+    '''
     def __init__(self):
         self.logger = logging.getLogger('XMLReader')
     
