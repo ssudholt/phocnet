@@ -27,10 +27,10 @@ class XMLReader(object):
             train_xml_path (str): the path to the READ-style training XML file
             test_xml_path (str): the path to the READ-style test XML file
         '''
-        self.logger.debug('Loading training XML at %s', train_xml_path)
+        self.logger.info('Loading training XML at %s', train_xml_path)
         train_dataset_name, train_list = self.load_word_list_from_READ_xml(xml_filename=train_xml_path, img_dir=img_dir)
         
-        self.logger.debug('Loading test XML at %s', test_xml_path)
+        self.logger.info('Loading test XML at %s', test_xml_path)
         test_dataset_name, test_list = self.load_word_list_from_READ_xml(xml_filename=test_xml_path, img_dir=img_dir)
         
         # check if the two datasets match
