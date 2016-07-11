@@ -5,7 +5,7 @@ Created on Jul 9, 2016
 '''
 import logging
 import os
-from xml.etree.ElementTree import ElementTree
+import xml.etree.ElementTree as ET
 
 import numpy as np
 
@@ -41,7 +41,7 @@ class XMLReader(object):
 
     def load_word_list_from_READ_xml(self, xml_filename, img_dir):
         self.logger.debug('Using XML-File at %s and image directory %s...', xml_filename, img_dir)
-        tree = ElementTree.parse(os.path.join(xml_filename))
+        tree = ET.parse(os.path.join(xml_filename))
         root = tree.getroot()
         # load the dataset name
         dataset_name = root.attrib['dataset']        
