@@ -23,6 +23,7 @@ In order to use the PHOCNet library, you need to install the following depenenci
 - skimage
 - scipy
 - LMDB/Python LMDB Bindings
+- OpenCV/Python OpenCV Bindings
 
 ## Usage
 You can either embed this code in your project and call the classes from there or use the experiment script under `experiments/phocnet_experiment.py`.
