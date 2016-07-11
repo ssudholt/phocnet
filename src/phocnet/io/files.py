@@ -16,7 +16,6 @@ def read_list(file_path):
         raise ValueError('File for reading list does NOT exist: ' + file_path)    
     linelist = []    
     with open(file_path) as stream:
-        
         for line in stream:
             line = line.strip()
             if line != '':
