@@ -25,13 +25,15 @@ python phocnet_experiment.py --doc_img_dir <folder of the doc. images> --train_a
 
 ### READ-style XMLs
 PHOCNet experiments need READ-style XML files for the training and test partitions of the individual datasets. The layout of such an XML file is shown below.
-    <?xml version="1.0" encoding="utf-8" ?>
-    <wordLocations dataset="my_dataset">
-        <spot word="convolutional" image="doc_image1" x="123" y="55" w="123" h="50" />
-        <spot word="neural" image="doc_image1" x="553" y="97" w="100" h="59" />
-        <spot word="networks" image="doc_image2" x="94" y="1197" w="244" h="62" />
-        <!-- The rest of the words in the dataset -->
-    </wordLocations>
+```
+<?xml version="1.0" encoding="utf-8" ?>
+<wordLocations dataset="my_dataset">
+    <spot word="convolutional" image="doc_image1" x="123" y="55" w="123" h="50" />
+    <spot word="neural" image="doc_image1" x="553" y="97" w="100" h="59" />
+    <spot word="networks" image="doc_image2" x="94" y="1197" w="244" h="62" />
+    <!-- The rest of the words in the dataset -->
+</wordLocations>
+```
 A number of sample XML files can be found under `experiments`. You can either use the sample XML files or create your own training and test XML files.
 
 ### LMDB
