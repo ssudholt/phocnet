@@ -1,13 +1,13 @@
 # PHOCNet
 
-PHOCNet is a Convolutional Neural Network for classifying document image attributes. This code was the base for generating the results in [PHOCNet: A Deep Convolutional Neural Network for Word Spotting in Handwritten Documents](https://arxiv.org/abs/1604.00187)
+PHOCNet is a Convolutional Neural Network for classifying document image attributes. This library was the base for generating the results in [PHOCNet: A Deep Convolutional Neural Network for Word Spotting in Handwritten Documents](https://arxiv.org/abs/1604.00187)
 
 If you use the code for scientific purposes, please cite
 ```
 @inproceedings{Sudholt2016-PAD,
    archivePrefix = {arXiv},
    arxivId = {arXiv:1604.00187v1},
-   author = {Sudholt, Sebastian and Fink, Gernot A},
+   author = {Sudholt, Sebastian and Fink, Gernot A.},
    booktitle = {arXiv:1604.00187v1},
    eprint = {arXiv:1604.00187v1},
    pages = {1--6},
@@ -25,8 +25,8 @@ In order to use the PHOCNet library, you need to install the following depenenci
 - LMDB/Python LMDB Bindings
 
 ## Usage
-You can either embed this code in your project and call the class from there or use the experiment script `experiments/phocnet_experiment.py`.
-Usage information are provided through
+You can either embed this code in your project and call the classes from there or use the experiment script under `experiments/phocnet_experiment.py`.
+Usage information is provided through
 ```
 python phocnet_experiment.py
 ```
@@ -48,11 +48,13 @@ PHOCNet experiments need READ-style XML files for the training and test partitio
     <!-- The rest of the words in the dataset -->
 </wordLocations>
 ```
-The `image` value is always interpreted relative to the path specified with the `--doc_img_dir` parameter.
+The `image` value is always interpreted relative to the path specified with the `--doc_img_dir` parameter. 
 A number of sample XML files can be found under `experiments`. You can either use the sample XML files or create your own training and test XML files.
 
 ### LMDB
-For fast training, the PHOCNet library makes use of LMDB database as input for Caffe. During the first run of an experiment, the LMDBs are created automatically. For this you need to specify where to save the LMDB files. Keep in mind that LMDBs can easily grow to a couple of GBs.
+For fast training, the PHOCNet library makes use of LMDB database as input for Caffe. During the first run of an experiment, the LMDBs are created automatically. For this you need to specify where to save the LMDB files. Keep in mind that LMDBs can easily grow to a couple of GBs. 
+
+After the first run, the created LMDBs are used in consecutive experiments for the same dataset.
 
 ### GPU/CPU
 The PHOCNet library can be run on GPUs as well as CPUs. GPU mode is activated if the parameter `--gpu_id` is passed to the experiment script with a valid GPU ID. If no GPU ID is specified, the experiment is run in CPU mode.
