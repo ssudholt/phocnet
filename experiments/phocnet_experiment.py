@@ -12,17 +12,17 @@ import caffe
 import numpy as np
 from skimage.transform import resize
 
-from phocnet.io.xml import XMLReader
-from phocnet.io.files import save_prototxt, write_list
 from phocnet.attributes.phoc import build_phoc, unigrams_from_word_list
 from phocnet.caffe.model_proto_generator import ModelProtoGenerator
 from phocnet.caffe.solver_proto_generator import generate_solver_proto
 from phocnet.caffe.lmdb_creator import CaffeLMDBCreator
 from phocnet.caffe.augmentation import AugmentationCreator
 from phocnet.evaluation.time import convert_secs2HHMMSS
-from phocnet.numpy.numpy_helper import NumpyHelper
-from phocnet.io.context_manager import Suppressor
 from phocnet.evaluation.cnn import calc_map_from_cnn_features
+from phocnet.io.xml_io import XMLReader
+from phocnet.io.files import save_prototxt, write_list
+from phocnet.io.context_manager import Suppressor
+from phocnet.numpy.numpy_helper import NumpyHelper
 
 class PHOCNetExperiment(object):
     '''
@@ -30,10 +30,10 @@ class PHOCNetExperiment(object):
     '''
 
     def __init__(self, doc_img_dir, train_annotation_file, test_annotation_file, 
-                 proto_dir, solver_proto_path, n_train_images, 
-                 lmdb_dir, save_net_path, phoc_unigram_levels, recreate_lmdbs, 
-                 gpu_id, learning_rate, momentum, weight_decay, batch_size, test_interval,
-                 display, max_iter, step_size, gamma, debug_mode, metric):
+                 proto_dir, n_train_images, lmdb_dir, save_net_path, 
+                 phoc_unigram_levels, recreate_lmdbs, gpu_id, learning_rate, momentum, 
+                 weight_decay, batch_size, test_interval, display, max_iter, step_size, 
+                 gamma, debug_mode, metric):
         '''
         The constructor
         
@@ -42,7 +42,6 @@ class PHOCNetExperiment(object):
             train_annotation_file (str): the absolute path to the READ-style annotation file for the training samples
             test_annotation_file (str): the absolute path to the READ-style annotation file for the test samples
             proto_dir (str): absolute path where to save the Caffe protobuffer files
-            solver_proto_path (str): absolute path where to save the Caffe Solver protobuffer file
             n_train_images (int): the total number of training images to be used
             lmdb_dir (str): directory to save the LMDB files into
             save_net_path (str): absolute path where to save the trained PHOCNet
@@ -60,20 +59,20 @@ class PHOCNetExperiment(object):
             display (int): the number of iterations after which to show the training net loss
             max_iter (int): the maximum number of SGD iterations
             step_size (int): the number of iterations after which to reduce the learning rate
-            gamma (float): the facter to multiply the step size with after step_size iterations
+            gamma (float): the factor to multiply the step size with after step_size iterations
         '''
         # store the experiment parameters
         self.doc_img_dir = doc_img_dir
         self.train_annotation_file = train_annotation_file
         self.test_annotation_file = test_annotation_file
         self.proto_dir = proto_dir
-        self.solver_proto_path = solver_proto_path
         self.n_train_images = n_train_images
         self.lmdb_dir = lmdb_dir
         self.save_net_path = save_net_path
         self.phoc_unigram_levels = phoc_unigram_levels
         self.recreate_lmdbs = recreate_lmdbs
         self.debug_mode = debug_mode
+        self.metric = metric
         
         # store the Caffe parameters
         self.gpu_id = gpu_id
@@ -115,13 +114,15 @@ class PHOCNetExperiment(object):
                                                                              img_dir=self.doc_img_dir)
         phoc_unigrams = unigrams_from_word_list(word_list=train_list)
         self.test_iter = len(test_list)
-        self.logger.info('Found dataset \'%s\'', dataset_name)
+        self.logger.info('Using dataset \'%s\'', dataset_name)
         
         # check if we need to create LMDBs
-        train_word_images_lmdb_path = os.path.join(self.lmdb_dir, '%s_train_word_images_lmdb' % dataset_name)
-        train_phoc_lmdb_path = os.path.join(self.lmdb_dir, '%s_train_phoc_lmdb' % dataset_name)
-        test_word_images_lmdb_path = os.path.join(self.lmdb_dir, '%s_test_word_images_lmdb' % dataset_name)
-        test_phoc_lmdb_path = os.path.join(self.lmdb_dir, '%s_test_phoc_lmdb' % dataset_name)
+        lmdb_prefix = '%s_nti%d_pul%s' % (dataset_name, self.n_train_images,
+                                          '-'.join([str(elem) for elem in self.phoc_unigram_levels]))
+        train_word_images_lmdb_path = os.path.join(self.lmdb_dir, '%s_train_word_images_lmdb' % lmdb_prefix)
+        train_phoc_lmdb_path = os.path.join(self.lmdb_dir, '%s_train_phocs_lmdb' % lmdb_prefix)
+        test_word_images_lmdb_path = os.path.join(self.lmdb_dir, '%s_test_word_images_lmdb' % lmdb_prefix)
+        test_phoc_lmdb_path = os.path.join(self.lmdb_dir, '%s_test_phocs_lmdb' % lmdb_prefix)
         lmdbs_exist = (os.path.exists(train_word_images_lmdb_path),
                        os.path.exists(train_phoc_lmdb_path),
                        os.path.exists(test_word_images_lmdb_path),
@@ -158,7 +159,7 @@ class PHOCNetExperiment(object):
         solver_proto = generate_solver_proto(train_net=train_proto_path, test_net=test_proto_path,
                                              base_lr=self.learning_rate, momentum=self.momentum, display=self.display,
                                              lr_policy='step', gamma=self.gamma, stepsize=self.step_size,
-                                             solver_mode=self.solver, iter_size=self.batch_size, max_iter=self.max_iter,
+                                             solver_mode=self.solver_mode, iter_size=self.batch_size, max_iter=self.max_iter,
                                              average_loss=self.display, test_iter=self.test_iter, test_interval=self.test_interval,
                                              weight_decay=self.weight_decay)
         # save the proto files
@@ -189,6 +190,7 @@ class PHOCNetExperiment(object):
         '''
         Method called every self.test_interval iterations during training
         '''
+        self.logger.info('Evaluating CNN after %d steps:', epoch*solver.param.test_interval)
         self.epoch_map[epoch+1], _ = calc_map_from_cnn_features(solver=solver, 
                                                                 test_iterations=self.test_iter, 
                                                                 metric=self.metric)
@@ -208,7 +210,7 @@ class PHOCNetExperiment(object):
         start_time = time.time()        
         # --- TRAIN IMAGES
         # find all unique transcriptions and the label map...
-        _, transcription_map = self._get_unique_transcriptions_and_labelmap(train_list, test_list)
+        _, transcription_map = self.__get_unique_transcriptions_and_labelmap(train_list, test_list)
         # get the numeric training labels plus a random order to insert them into
         # create the numeric labels and counts
         train_labels = np.array([transcription_map[word.get_transcription()] for word in train_list])
@@ -238,7 +240,6 @@ class PHOCNetExperiment(object):
             # corresponding PHOC            
             cur_word_indices = np.where(train_labels == cur_label)[0]  
             cur_transcription = train_list[cur_word_indices[0]].get_transcription()
-            cur_transcription = self.__remove_non_ascii(cur_transcription)
             cur_phoc = NumpyHelper.get_unique_rows(train_phocs[cur_word_indices])
             # unique rows should only return one specific PHOC
             if cur_phoc.shape[0] != 1:
@@ -261,7 +262,7 @@ class PHOCNetExperiment(object):
                 # append to the current word images and
                 # put into LMDB
                 cur_word_images.append(img)
-                key = '%s_%s' % (str(random_indices.pop()).zfill(8), cur_transcription)                
+                key = '%s_%s' % (str(random_indices.pop()).zfill(8), cur_transcription.encode('ascii', 'ignore'))                
                 lmdb_creator.put_dual(img_mat=np.atleast_3d(img).transpose((2,0,1)).astype(np.uint8), 
                                       additional_mat=cur_phoc, label=cur_label, key=key)
                             
@@ -275,7 +276,7 @@ class PHOCNetExperiment(object):
                 for ind in inds:
                     aug_img = AugmentationCreator.create_affine_transform_augmentation(img=cur_word_images[ind], random_limits=random_limits)
                     aug_img = np.atleast_3d(aug_img).transpose((2,0,1)).astype(np.uint8)
-                    key = '%s_%s' % (str(random_indices.pop()).zfill(8), cur_transcription)
+                    key = '%s_%s' % (str(random_indices.pop()).zfill(8), cur_transcription.encode('ascii', 'ignore'))
                     lmdb_creator.put_dual(img_mat=aug_img, additional_mat=cur_phoc, label=cur_label, key=key)
         # wrap up training LMDB creation
         if len(random_indices) != 0:
@@ -283,9 +284,9 @@ class PHOCNetExperiment(object):
         lmdb_creator.finish_creation()
         # write the label map to the LMDBs as well        
         write_list(file_path=train_word_images_lmdb_path + '/label_map.txt', 
-                   line_list=['%s %s' % (self.__remove_non_ascii(elem[0]), elem[1]) for elem in transcription_map.items()])
+                   line_list=['%s %s' % elem for elem in transcription_map.items()])
         write_list(file_path=train_phoc_lmdb_path + '/label_map.txt', 
-                   sline_list=['%s %s' % (self.__remove_non_ascii(elem[0]), elem[1]) for elem in transcription_map.items()])
+                   line_list=['%s %s' % elem for elem in transcription_map.items()])
         self.logger.info('Finished processing train words (took %s, %d rescales)', convert_secs2HHMMSS(time.time() - start_time), n_rescales)
         
         # --- TEST IMAGES
@@ -308,9 +309,9 @@ class PHOCNetExperiment(object):
                 lmdb_creator.put_dual(img_mat=img, additional_mat=phoc_3d, label=transcription_map[word.get_transcription()])
         lmdb_creator.finish_creation()
         write_list(file_path=test_word_images_lmdb_path + '/label_map.txt', 
-                   line_list=['%s %s' % (self.__remove_non_ascii(elem[0]), elem[1]) for elem in transcription_map.items()])
+                   line_list=['%s %s' % elem for elem in transcription_map.items()])
         write_list(file_path=test_phoc_lmdb_path + '/label_map.txt', 
-                   line_list=['%s %s' % (self.__remove_non_ascii(elem[0]), elem[1]) for elem in transcription_map.items()])
+                   line_list=['%s %s' % elem for elem in transcription_map.items()])
         self.logger.info('Finished processing test words (took %s, %d rescales)', convert_secs2HHMMSS(time.time() - start_time), n_rescales)
     
     def __check_size(self, img):
@@ -332,7 +333,11 @@ class PHOCNetExperiment(object):
         else:
             return img, False 
     
-    def _get_unique_transcriptions_and_labelmap(self, train_list, test_list):
+    def __get_unique_transcriptions_and_labelmap(self, train_list, test_list):
+        '''
+        Returns a list of unique transcriptions for the given train and test lists
+        and creates a dictionary mapping transcriptions to numeric class labels.
+        '''
         unique_transcriptions = [word.get_transcription() for word in train_list]
         unique_transcriptions.extend([word.get_transcription() for word in test_list])
         unique_transcriptions = list(set(unique_transcriptions))
@@ -340,6 +345,12 @@ class PHOCNetExperiment(object):
         return unique_transcriptions, transcription_map        
     
     def _run_sgd(self, solver_proto_path):
+        '''
+        Starts the SGD training of the PHOCNet
+        
+        Args:
+            solver_proto_path (str): the absolute path to the solver protobuffer file to use
+        '''
         # Set CPU/GPU mode for solver training
         if self.gpu_id != None:
             self.logger.info('Setting Caffe to GPU mode using device %d', self.gpu_id)
@@ -379,6 +390,11 @@ class PHOCNetExperiment(object):
         return solver
     
     def __get_solver(self, solver_proto_path):
+        '''
+        Returns a caffe.SGDSolver for the given protofile path,
+        ignoring Caffe command line chatter if debug mode is not set
+        to True.
+        '''
         if not self.debug_mode:
             # disable Caffe init chatter when not in debug
             with Suppressor():
@@ -388,12 +404,59 @@ class PHOCNetExperiment(object):
 
 class PHOCNetExperimentArgumentParser(ArgumentParser):
     def __init__(self):
+        super(PHOCNetExperimentArgumentParser, self).__init__()
+        # required experiment parameters
+        self.add_argument('--doc_img_dir', action='store', type=str, required=True,
+                          help='The location of the document images.')
+        self.add_argument('--train_annotation_file', action='store', type=str, required=True,
+                          help='The file path to the READ-style XML file for the training partition of the dataset to be used.')
+        self.add_argument('--test_annotation_file', action='store', type=str, required=True,
+                          help='The file path to the READ-style XML file for the testing partition of the dataset to be used.')
+        self.add_argument('--proto_dir', action='store', type=str, required=True,
+                          help='Directory where to save the protobuffer files generated during the training.')
+        self.add_argument('--lmdb_dir', action='store', type=str, required=True,
+                          help='Directory where to save the LMDB databases created during training.')
         # IO parameters
         self.add_argument('--save_net_path', '-snp', action='store', type=str,
                           help='Absolute path where to save the final PHOCNet. If unspecified, the net is not saved after training')
         self.add_argument('--recreate_lmdbs', '-rl', action='store_true', default=False,
                           help='Flag indicating to delete existing LMDBs for this dataset and recompute them.')
-    def parse_and_run(self, experiment_driver_class):
+        self.add_argument('--debug_mode', '-dm', action='store_true', default=False,
+                          help='Flag indicating to run the PHOCNet training in debug mode.')
+        # Caffe parameters
+        self.add_argument('--learning_rate', '-lr', action='store', type=float, default=0.0001, 
+                          help='The learning for SGD training. Default: 0.0001')
+        self.add_argument('--momentum', '-mom', action='store', type=float, default=0.9,
+                          help='The momentum for SGD training. Default: 0.9')
+        self.add_argument('--step_size', '-ss', action='store', type=int, default=70000, 
+                          help='The step size at which to reduce the learning rate. Default: 70000')
+        self.add_argument('--display', action='store', type=int, default=500, 
+                          help='The number of iterations after which to display the loss values. Default: 500')
+        self.add_argument('--test_interval', action='store', type=int, default=500, 
+                          help='The number of iterations after which to periodically evaluate the PHOCNet. Default: 500')
+        self.add_argument('--max_iter', action='store', type=int, default=80000, 
+                          help='The maximum number of SGD iterations. Default: 80000')
+        self.add_argument('--batch_size', '-bs', action='store', type=int, default=10, 
+                          help='The batch size after which the gradient is computed. Default: 10')
+        self.add_argument('--weight_decay', '-wd', action='store', type=float, default=0.00005,
+                          help='The weight decay for SGD training. Default: 0.00005')
+        self.add_argument('--gamma', '-gam', action='store', type=float, default=0.1,
+                           help='The value with which the learning rate is multiplied after step_size iteraionts. Default: 0.1')
+        self.add_argument('--gpu_id', '-gpu', action='store', type=int, 
+                          help='The ID of the GPU to use. If not specified, training is run in CPU mode.')
+        # PHOCNet parameters
+        self.add_argument('--phoc_unigram_levels', '-pul', action='store', type=lambda x: [int(elem) for elem in x.split(',')], default='1,2,3,4,5',
+                          help='Comma seperated list of PHOC unigram levels to be used. Default: 1,2,3,4,5')
+        self.add_argument('--n_train_images', '-nti', action='store', type=int, default=500000, 
+                          help='The number of images to be generated for the training LMDB. Default: 500000')
+        self.add_argument('--metric', '-met', action='store', type=str, default='braycurtis',
+                          help='The metric with which to compare the PHOCNet predicitions (possible metrics are all scipy metrics). Default: braycurtis')
+        
+    def parse_and_run(self):
         args = vars(self.parse_args())        
-        experiment_instance = experiment_driver_class(**args)
+        experiment_instance = PHOCNetExperiment(**args)
         experiment_instance.train_phocnet()
+
+if __name__ == '__main__':
+    parser = PHOCNetExperimentArgumentParser()
+    parser.parse_and_run()
