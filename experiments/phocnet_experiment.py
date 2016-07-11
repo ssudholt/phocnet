@@ -373,7 +373,7 @@ class PHOCNetExperiment(object):
         self.logger.info('Finished Setup, running SGD')        
         for epoch in xrange(epochs):
             # run training until we want to test
-            solver.step(self.test_interval)
+            self.__solver_step(solver, self.test_interval)
             
             # run test callback after test_interval iterations
             self.logger.debug('Running test evaluation')
@@ -381,13 +381,23 @@ class PHOCNetExperiment(object):
         # if we have iterations left to compute, do so
         iters_left = self.max_iter % self.test_interval
         if iters_left > 0:
-            solver.step(iters_left)
+            self.__solver_step(solver, iters_left)
             
         # run post train callback
         self.logger.info('Running post-train evaluation')
         self.posttrain_callback(solver=solver)
         # return the solver
         return solver
+    
+    def __solver_step(self, solver, steps):
+        '''
+        Runs Caffe solver suppressing Caffe output if necessary
+        '''
+        if not self.debug_mode:
+            with Suppressor():
+                solver.step(steps)
+        else:
+            solver.step(steps)
     
     def __get_solver(self, solver_proto_path):
         '''
