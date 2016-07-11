@@ -54,7 +54,7 @@ class ModelProtoGenerator(object):
             return fc, relu, L.Dropout(relu, dropout_ratio=0.5, in_place=True, include=dict(phase=self.phase_train))
     
     def get_phocnet(self, word_image_lmdb_path, phoc_lmdb_path,                    
-                    phoc_size=604, generate_deploy=False, enable_dropout_in_test=False):
+                    phoc_size=604, generate_deploy=False):
         '''
         Returns a NetSpec definition of the PHOCNet. The definition can then be transformed
         into a protobuffer message by casting it into a str.
