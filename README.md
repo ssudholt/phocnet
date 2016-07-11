@@ -28,7 +28,7 @@ In order to use the PHOCNet library, you need to install the following depenenci
 You can either embed this code in your project and call the classes from there or use the experiment script under `experiments/phocnet_experiment.py`.
 Usage information is provided through
 ```
-python phocnet_experiment.py
+python phocnet_experiment.py -h
 ```
 This command also gives an overview over the possible parameters and their default values.
 
