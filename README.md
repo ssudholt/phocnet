@@ -2,6 +2,20 @@
 
 PHOCNet is a Convolutional Neural Network for classifying document image attributes. This code was the base for generating the results in [PHOCNet: A Deep Convolutional Neural Network for Word Spotting in Handwritten Documents](https://arxiv.org/abs/1604.00187)
 
+If you use the code for scientific purposes, please cite
+```
+@inproceedings{Sudholt2016-PAD,
+   archivePrefix = {arXiv},
+   arxivId = {arXiv:1604.00187v1},
+   author = {Sudholt, Sebastian and Fink, Gernot A},
+   booktitle = {arXiv:1604.00187v1},
+   eprint = {arXiv:1604.00187v1},
+   pages = {1--6},
+   title = {{PHOCNet : A Deep Convolutional Neural Network for Word Spotting in Handwritten Documents}},
+   year = {2016}
+}
+```
+
 ## Prerequisites
 In order to use the PHOCNet library, you need to install the following depenencies:
 - [Caffe](https://github.com/BVLC/caffe)
@@ -34,8 +48,11 @@ PHOCNet experiments need READ-style XML files for the training and test partitio
     <!-- The rest of the words in the dataset -->
 </wordLocations>
 ```
+The `image` value is always interpreted relative to the path specified with the `--doc_img_dir` parameter.
 A number of sample XML files can be found under `experiments`. You can either use the sample XML files or create your own training and test XML files.
 
 ### LMDB
 For fast training, the PHOCNet library makes use of LMDB database as input for Caffe. During the first run of an experiment, the LMDBs are created automatically. For this you need to specify where to save the LMDB files. Keep in mind that LMDBs can easily grow to a couple of GBs.
 
+### GPU/CPU
+The PHOCNet library can be run on GPUs as well as CPUs. GPU mode is activated if the parameter `--gpu_id` is passed to the experiment script with a valid GPU ID. If no GPU ID is specified, the experiment is run in CPU mode.
