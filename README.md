@@ -18,7 +18,7 @@ If you use the code for scientific purposes, please cite
 
 ## Prerequisites
 In order to use the PHOCNet library, you need to install the following depenencies:
-- [Caffe](https://github.com/BVLC/caffe)
+- [Customized Caffe](https://github.com/ssudholt/caffe/tree/patrec-master)
 - numpy
 - skimage
 - scipy
