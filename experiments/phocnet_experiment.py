@@ -30,7 +30,7 @@ class PHOCNetExperiment(object):
     '''
 
     def __init__(self, doc_img_dir, train_annotation_file, test_annotation_file, 
-                 proto_dir, n_train_images, lmdb_dir, save_net_path, 
+                 proto_dir, n_train_images, lmdb_dir, save_net_dir, 
                  phoc_unigram_levels, recreate_lmdbs, gpu_id, learning_rate, momentum, 
                  weight_decay, batch_size, test_interval, display, max_iter, step_size, 
                  gamma, debug_mode, metric, annotation_delimiter, make_lower_case):
@@ -44,7 +44,7 @@ class PHOCNetExperiment(object):
             proto_dir (str): absolute path where to save the Caffe protobuffer files
             n_train_images (int): the total number of training images to be used
             lmdb_dir (str): directory to save the LMDB files into
-            save_net_path (str): absolute path where to save the trained PHOCNet
+            save_net_dir (str): directory where to save the trained PHOCNet
             phoc_unigrams_levels (list of int): the list of unigram levels
             recreate_lmdbs (bool): whether to delete and recompute existing LMDBs
             debug_mode (bool): flag indicating to run this experiment in debug mode
@@ -70,7 +70,7 @@ class PHOCNetExperiment(object):
         self.proto_dir = proto_dir
         self.n_train_images = n_train_images
         self.lmdb_dir = lmdb_dir
-        self.save_net_path = save_net_path
+        self.save_net_dir = save_net_dir
         self.phoc_unigram_levels = phoc_unigram_levels
         self.recreate_lmdbs = recreate_lmdbs
         self.debug_mode = debug_mode
@@ -98,6 +98,7 @@ class PHOCNetExperiment(object):
         self.min_image_width_height = 26
         self.epoch_map = None
         self.test_iter = None
+        self.dataset_name = None
         
         # set up the logging
         logging_format = '[%(asctime)-19s, %(name)s] %(message)s'
@@ -112,17 +113,17 @@ class PHOCNetExperiment(object):
         self.logger.info('--- Running PHOCNet Training ---')
         # --- Step 1: check if we need to create the LMDBs
         # load the word lists
-        xml_reader = XMLReader(character_delimiter=self.annotation_delimiter)
-        dataset_name, train_list, test_list = xml_reader.load_train_test_xml(train_xml_path=self.train_annotation_file, 
-                                                                             test_xml_path=self.test_annotation_file, 
-                                                                             img_dir=self.doc_img_dir)
-        phoc_unigrams = unigrams_from_word_list(word_list=train_list)
+        xml_reader = XMLReader(make_lower_case=self.make_lower_case)
+        self.dataset_name, train_list, test_list = xml_reader.load_train_test_xml(train_xml_path=self.train_annotation_file, 
+                                                                                  test_xml_path=self.test_annotation_file, 
+                                                                                  img_dir=self.doc_img_dir)
+        phoc_unigrams = unigrams_from_word_list(word_list=train_list, split_character=self.annotation_delimiter)
         self.logger.info('PHOC unigrams: %s', ' '.join(phoc_unigrams))
         self.test_iter = len(test_list)
-        self.logger.info('Using dataset \'%s\'', dataset_name)
+        self.logger.info('Using dataset \'%s\'', self.dataset_name)
         
         # check if we need to create LMDBs
-        lmdb_prefix = '%s_nti%d_pul%s' % (dataset_name, self.n_train_images,
+        lmdb_prefix = '%s_nti%d_pul%s' % (self.dataset_name, self.n_train_images,
                                           '-'.join([str(elem) for elem in self.phoc_unigram_levels]))
         train_word_images_lmdb_path = os.path.join(self.lmdb_dir, '%s_train_word_images_lmdb' % lmdb_prefix)
         train_phoc_lmdb_path = os.path.join(self.lmdb_dir, '%s_train_phocs_lmdb' % lmdb_prefix)
@@ -136,9 +137,13 @@ class PHOCNetExperiment(object):
         if not np.all(lmdbs_exist) or self.recreate_lmdbs:     
             self.logger.info('Creating LMDBs...')       
             train_phocs = build_phoc(words=[word.get_transcription() for word in train_list], 
-                                     phoc_unigrams=phoc_unigrams, unigram_levels=self.phoc_unigram_levels)
+                                     phoc_unigrams=phoc_unigrams, unigram_levels=self.phoc_unigram_levels,
+                                     split_character=self.annotation_delimiter,
+                                     on_unknown_unigram='warn')
             test_phocs = build_phoc(words=[word.get_transcription() for word in test_list],
-                                    phoc_unigrams=phoc_unigrams, unigram_levels=self.phoc_unigram_levels)
+                                    phoc_unigrams=phoc_unigrams, unigram_levels=self.phoc_unigram_levels,
+                                    split_character=self.annotation_delimiter,
+                                    on_unknown_unigram='warn')
             self._create_train_test_phocs_lmdbs(train_list=train_list, train_phocs=train_phocs, 
                                                 test_list=test_list, test_phocs=test_phocs,
                                                 train_word_images_lmdb_path=train_word_images_lmdb_path,
@@ -151,9 +156,9 @@ class PHOCNetExperiment(object):
         # --- Step 2: create the proto files
         self.logger.info('Saving proto files...')
         # prepare the output paths
-        train_proto_path = os.path.join(self.proto_dir, 'train_phocnet_%s.prototxt' % dataset_name)
-        test_proto_path = os.path.join(self.proto_dir, 'test_phocnet_%s.prototxt' % dataset_name)
-        solver_proto_path = os.path.join(self.proto_dir, 'solver_phocnet_%s.prototxt' % dataset_name)
+        train_proto_path = os.path.join(self.proto_dir, 'train_phocnet_%s.prototxt' % self.dataset_name)
+        test_proto_path = os.path.join(self.proto_dir, 'test_phocnet_%s.prototxt' % self.dataset_name)
+        solver_proto_path = os.path.join(self.proto_dir, 'solver_phocnet_%s.prototxt' % self.dataset_name)
         
         # generate the proto files
         mpg = ModelProtoGenerator(initialization='msra', use_cudnn_engine=self.gpu_id is not None)        
@@ -168,9 +173,9 @@ class PHOCNetExperiment(object):
                                              average_loss=self.display, test_iter=self.test_iter, test_interval=self.test_interval,
                                              weight_decay=self.weight_decay)
         # save the proto files
-        save_prototxt(file_path=train_proto_path, proto_object=train_proto, header_comment='Train PHOCNet %s' % dataset_name)
-        save_prototxt(file_path=test_proto_path, proto_object=test_proto, header_comment='Test PHOCNet %s' % dataset_name)
-        save_prototxt(file_path=solver_proto_path, proto_object=solver_proto, header_comment='Solver PHOCNet %s' % dataset_name)
+        save_prototxt(file_path=train_proto_path, proto_object=train_proto, header_comment='Train PHOCNet %s' % self.dataset_name)
+        save_prototxt(file_path=test_proto_path, proto_object=test_proto, header_comment='Test PHOCNet %s' % self.dataset_name)
+        save_prototxt(file_path=solver_proto_path, proto_object=solver_proto, header_comment='Solver PHOCNet %s' % self.dataset_name)
         
         # --- Step 3: train the PHOCNet
         self.logger.info('Starting SGD...')
@@ -207,7 +212,9 @@ class PHOCNetExperiment(object):
         '''
         # if self.save_net is not None, save the PHOCNet to the desired location
         if self.save_net_path is not None:
-            solver.net.save(self.save_net_path)
+            filename = 'phocnet_%s_nti%d_pul%s.binaryproto' % (self.dataset_name, self.n_train_images,
+                                                               '-'.join([str(elem) for elem in self.phoc_unigram_levels]))
+            solver.net.save(os.path.join(self.save_net_dir, filename))
     
     def _create_train_test_phocs_lmdbs(self, train_list, train_phocs, test_list, test_phocs, 
                                        train_word_images_lmdb_path, train_phoc_lmdb_path,
@@ -432,8 +439,8 @@ class PHOCNetExperimentArgumentParser(ArgumentParser):
         self.add_argument('--lmdb_dir', action='store', type=str, required=True,
                           help='Directory where to save the LMDB databases created during training.')
         # IO parameters
-        self.add_argument('--save_net_path', '-snp', action='store', type=str,
-                          help='Absolute path where to save the final PHOCNet. If unspecified, the net is not saved after training')
+        self.add_argument('--save_net_dir', '-snd', action='store', type=str,
+                          help='Directory where to save the final PHOCNet. If unspecified, the net is not saved after training')
         self.add_argument('--recreate_lmdbs', '-rl', action='store_true', default=False,
                           help='Flag indicating to delete existing LMDBs for this dataset and recompute them.')
         self.add_argument('--debug_mode', '-dm', action='store_true', default=False,
