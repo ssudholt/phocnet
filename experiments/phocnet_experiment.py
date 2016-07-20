@@ -211,7 +211,7 @@ class PHOCNetExperiment(object):
         Method called after finishing the training
         '''
         # if self.save_net is not None, save the PHOCNet to the desired location
-        if self.save_net_path is not None:
+        if self.save_net_dir is not None:
             filename = 'phocnet_%s_nti%d_pul%s.binaryproto' % (self.dataset_name, self.n_train_images,
                                                                '-'.join([str(elem) for elem in self.phoc_unigram_levels]))
             solver.net.save(os.path.join(self.save_net_dir, filename))
