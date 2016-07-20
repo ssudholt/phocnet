@@ -1,8 +1,3 @@
-'''
-Created on Jul 8, 2016
-
-@author: ssudholt
-'''
 from argparse import ArgumentParser
 import logging
 import os
@@ -180,9 +175,6 @@ class PHOCNetExperiment(object):
         # --- Step 3: train the PHOCNet
         self.logger.info('Starting SGD...')
         self._run_sgd(solver_proto_path=solver_proto_path)
-        
-    def test_phocnet(self):
-        pass
 
     def pretrain_callback(self, solver):
         '''
