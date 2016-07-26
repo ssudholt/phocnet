@@ -4,7 +4,7 @@ Created on Jul 10, 2016
 @author: ssudholt
 '''
 import numpy as np
-from scipy.spatial.distance import pdist, squareform
+from scipy.spatial.distance import pdist, squareform, cdist
 
 def map_from_feature_matrix(features, labels, metric, drop_first):
     '''
@@ -46,6 +46,49 @@ def map_from_feature_matrix(features, labels, metric, drop_first):
     mAP = np.mean(avg_precs)
     return mAP, avg_precs
 
+def map_from_query_test_feature_matrices(query_features, test_features, query_labels, test_labels, 
+                                         metric, drop_first=False):
+    '''
+    Computes mAP and APs for a given matrix of query representations
+    and another matrix of test representations
+    Each query is used once to rank the test samples.
+    
+    Args:
+        query_features (2d-ndarray): the feature representation for the queries
+        query_labels (1d-ndarray or list): the labels corresponding to the queries (either numeric or characters)
+        test_features (2d-ndarray): the feature representation for the test samples
+        test_labels (1d-ndarray or list): the labels corresponding to the test samples (either numeric or characters)
+        metric (string): the metric to be used in calculating the mAP
+        drop_first (bool): whether to drop the first retrieval result or not
+    '''
+    # some argument error checking
+    if query_features.shape[1] != test_features.shape[1]:
+        raise ValueError('Shape mismatch')
+    if query_features.shape[0] != len(query_labels):
+        raise ValueError('The number of query feature vectors and query labels does not match')
+    if test_features.shape[0] != len(test_labels):
+        raise ValueError('The number of test feature vectors and test labels does not match')
+    
+    # compute the nearest neighbors
+    dist_mat = cdist(XA=query_features, XB=test_features, metric=metric)
+    retrieval_indices = np.argsort(dist_mat, axis=1)
+    
+    # create the retrieval matrix
+    retr_mat = np.tile(test_labels, (len(query_labels),1))
+    row_selector = np.transpose(np.tile(np.arange(len(query_labels)), (len(test_labels),1)))
+    retr_mat = retr_mat[row_selector, retrieval_indices]
+    
+    # create the relevance matrix
+    relevance_matrix = retr_mat == np.atleast_2d(query_labels).T
+    if drop_first:
+        relevance_matrix = relevance_matrix[:,1:]
+    
+    # calculate mAP and APs
+    mapCalc = MeanAveragePrecision()
+    avg_precs = np.array([mapCalc.average_precision(row) for row in relevance_matrix], ndmin=2).flatten()
+    mAP = np.mean(avg_precs)    
+    return mAP, avg_precs
+
 class IterativeMean(object):
     '''
     Class for iteratively computing a mean. With every new value (@see: _add_value)
@@ -67,15 +110,9 @@ class IterativeMean(object):
         self.__N += 1
         
     def get_mean(self):
-        '''
-        @return: The current mean 
-        '''
         return self.__mean
     
     def reset(self):
-        '''
-        Resets the iterative mean calculation
-        '''
         self.__mean = 0.0
         self.__N = 0.0
          
