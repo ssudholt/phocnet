@@ -28,7 +28,7 @@ class PHOCNetExperiment(object):
                  proto_dir, n_train_images, lmdb_dir, save_net_dir, 
                  phoc_unigram_levels, recreate_lmdbs, gpu_id, learning_rate, momentum, 
                  weight_decay, batch_size, test_interval, display, max_iter, step_size, 
-                 gamma, debug_mode, metric, annotation_delimiter, make_lower_case):
+                 gamma, debug_mode, metric, annotation_delimiter, use_lower_case_only):
         '''
         The constructor
         
@@ -45,7 +45,7 @@ class PHOCNetExperiment(object):
             debug_mode (bool): flag indicating to run this experiment in debug mode
             metric (str): metric for comparing the PHOCNet output during test
             annotation_delimiter (str): delimiter for the annotation in the XML files
-            make_lower_case (bool): convert annotation to lower case before creating LMDBs
+            use_lower_case_only (bool): convert annotation to lower case before creating LMDBs
             
             gpu_id (int): the ID of the GPU to use
             learning_rate (float): the learning rate to be used in training
@@ -71,7 +71,7 @@ class PHOCNetExperiment(object):
         self.debug_mode = debug_mode
         self.metric = metric
         self.annotation_delimiter = annotation_delimiter
-        self.make_lower_case = make_lower_case
+        self.use_lower_case_only = use_lower_case_only
         
         # store the Caffe parameters
         self.gpu_id = gpu_id
@@ -108,7 +108,7 @@ class PHOCNetExperiment(object):
         self.logger.info('--- Running PHOCNet Training ---')
         # --- Step 1: check if we need to create the LMDBs
         # load the word lists
-        xml_reader = XMLReader(make_lower_case=self.make_lower_case)
+        xml_reader = XMLReader(make_lower_case=self.use_lower_case_only)
         self.dataset_name, train_list, test_list = xml_reader.load_train_test_xml(train_xml_path=self.train_annotation_file, 
                                                                                   test_xml_path=self.test_annotation_file, 
                                                                                   img_dir=self.doc_img_dir)
@@ -466,8 +466,8 @@ class PHOCNetExperimentArgumentParser(ArgumentParser):
         self.add_argument('--metric', '-met', action='store', type=str, default='braycurtis',
                           help='The metric with which to compare the PHOCNet predicitions (possible metrics are all scipy metrics). Default: braycurtis')
         self.add_argument('--annotation_delimiter', '-ad', action='store', type=str,
-                          help='If the annotation is separated by special delimiters, it can be specified here.')
-        self.add_argument('--make_lower_case', '-mlc', action='store_true', default=False,
+                          help='If the annotation in the XML is separated by special delimiters, it can be specified here.')
+        self.add_argument('--use_lower_case_only', '-ulco', action='store_true', default=False,
                           help='Flag indicating to convert all annotations from the XML to lower case before proceeding')
         
     def parse_and_run(self):
