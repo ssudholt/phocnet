@@ -17,7 +17,7 @@ If you use the code for scientific purposes, please cite
 ```
 
 ## Prerequisites
-In order to use the PHOCNet library, you need to install the following depenencies:
+In order to use the PHOCNet library, you need to install the following dependencies:
 - Customized Caffe (supplied as submodule)
 - numpy
 - skimage
@@ -25,9 +25,13 @@ In order to use the PHOCNet library, you need to install the following depenenci
 - LMDB/Python LMDB Bindings
 - OpenCV/Python OpenCV Bindings
 
+## Installation
+You need to install all dependencies listed under prerequisites. Additionally, you need to compile the supplied Caffe Submodule with Python. More information on how to compile Caffe can be found on the (Caffe Homepage)[http://caffe.berkeleyvision.org/installation.html].
+
 ## Usage
-You can either embed this code in your project and call the classes from there or use the experiment script under `experiments/phocnet_experiment.py`.
-Usage information is provided through
+You can either embed this code in your project and call the classes from there, use the experiment script under `experiments/phocnet_experiment.py` or use any auf the auxilliary scripts under the `tools' directory.
+
+Usage information for the experiment script is provided through
 ```
 python phocnet_experiment.py -h
 ```
@@ -51,6 +55,12 @@ PHOCNet experiments need READ-style XML files for the training and test partitio
 ```
 The `image` value is always interpreted relative to the path specified with the `--doc_img_dir` parameter. 
 A number of sample XML files can be found under `experiments`. You can either use the sample XML files or create your own training and test XML files.
+
+### Images on Disk
+If you have a number of images on disk and quickly want to predict PHOCs from a pretrained PHOCNet, you can simply use the `predict_phocs.py' script. Exact usage information can be found by typing:
+```
+python predict_phocs.py -h
+'''
 
 ### LMDB
 For fast training, the PHOCNet library makes use of LMDB database as input for Caffe. During the first run of an experiment, the LMDBs are created automatically. For this you need to specify where to save the LMDB files. Keep in mind that LMDBs can easily grow to a couple of GBs. 
