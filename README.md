@@ -1,4 +1,5 @@
 # PHOCNet
+![PHOCNet Architecture](phocnet_architecture.png)
 
 PHOCNet is a Convolutional Neural Network for classifying document image attributes. This library was the base for generating the results in [PHOCNet: A Deep Convolutional Neural Network for Word Spotting in Handwritten Documents](http://patrec.cs.tu-dortmund.de/pubs/abstracts/Sudholt2016-PAD.htm)
 
@@ -26,7 +27,7 @@ In order to use the PHOCNet library, you need to install the following dependenc
 - OpenCV/Python OpenCV Bindings
 
 ## Installation
-You need to install all dependencies listed under prerequisites. Additionally, you need to compile the supplied Caffe Submodule with Python. More information on how to compile Caffe can be found on the (Caffe Homepage)[http://caffe.berkeleyvision.org/installation.html].
+You need to install all dependencies listed under prerequisites. Additionally, you need to compile the supplied Caffe Submodule with Python. More information on how to compile Caffe can be found on the [Caffe Homepage](http://caffe.berkeleyvision.org/installation.html).
 
 ## Usage
 You can either embed this code in your project and call the classes from there, use the experiment script under `experiments/phocnet_experiment.py` or use any auf the auxilliary scripts under the `tools' directory.
