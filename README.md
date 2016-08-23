@@ -58,10 +58,10 @@ The `image` value is always interpreted relative to the path specified with the 
 A number of sample XML files can be found under `experiments`. You can either use the sample XML files or create your own training and test XML files.
 
 ### Images on Disk
-If you have a number of images on disk and quickly want to predict PHOCs from a pretrained PHOCNet, you can simply use the `predict_phocs.py' script. Exact usage information can be found by typing:
+If you have a number of images on disk and quickly want to predict PHOCs from a pretrained PHOCNet, you can simply use the `predict_phocs.py` script. Exact usage information can be found by typing:
 ```
 python predict_phocs.py -h
-'''
+```
 
 ### LMDB
 For fast training, the PHOCNet library makes use of LMDB database as input for Caffe. During the first run of an experiment, the LMDBs are created automatically. For this you need to specify where to save the LMDB files. Keep in mind that LMDBs can easily grow to a couple of GBs. 
