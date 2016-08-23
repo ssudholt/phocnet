@@ -46,4 +46,6 @@ if __name__ == '__main__':
 						help='Path to a pretrained PHOCNet binaryproto file.')
 	parser.add_argument('--deploy_proto', '-dp', action='store', type=str, required=True,
 						help='Path to PHOCNet deploy prototxt file.')
+	args = vars(parser.parse_args())
+	main(**args)
 	
