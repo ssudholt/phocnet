@@ -22,7 +22,7 @@ def main(img_dir, output_dir, pretrained_phocnet, deploy_proto, min_image_width_
 	
 	# find all images in the supplied dir
 	word_img_list = [cv2.imread(os.path.join(img_dir, filename), cv2.CV_LOAD_IMAGE_GRAYSCALE) 
-					 for filename in os.listdir(img_dir) if filename not in ['.', '..']]
+					 for filename in sorted(os.listdir(img_dir)) if filename not in ['.', '..']]
 	# push images through the PHOCNet
 	logger.info('Predicting PHOCs...')
 	predicted_phocs = net_output_for_word_image_list(phocnet=phocnet, word_img_list=word_img_list, 
