@@ -12,15 +12,23 @@ import cv2
 
 from phocnet.evaluation.cnn import net_output_for_word_image_list
 
-def main(img_dir, output_dir, pretrained_phocnet, deploy_proto, min_image_width_height):
+def main(img_dir, output_dir, pretrained_phocnet, deploy_proto, min_image_width_height, gpu_id):
 	logging_format = '[%(asctime)-19s, %(name)s, %(levelname)s] %(message)s'
 	logging.basicConfig(level=logging.INFO,
                         format=logging_format)
 	logger = logging.getLogger('Predict PHOCs')
+	
+	if gpu_id is None:
+		caffe.set_mode_cpu()
+	else:
+		caffe.set_mode_gpu()
+		caffe.set_device(gpu_id)
+	
 	logger.info('Loading PHOCNet...')
-	phocnet = caffe.Net(pretrained_phocnet, deploy_proto, caffe.TEST)
+	phocnet = caffe.Net(deploy_proto, caffe.TEST, weights=pretrained_phocnet)
 	
 	# find all images in the supplied dir
+	logger.info('Found %d word images to process', len(os.listdir(img_dir)))
 	word_img_list = [cv2.imread(os.path.join(img_dir, filename), cv2.CV_LOAD_IMAGE_GRAYSCALE) 
 					 for filename in sorted(os.listdir(img_dir)) if filename not in ['.', '..']]
 	# push images through the PHOCNet
@@ -46,6 +54,8 @@ if __name__ == '__main__':
 						help='Path to a pretrained PHOCNet binaryproto file.')
 	parser.add_argument('--deploy_proto', '-dp', action='store', type=str, required=True,
 						help='Path to PHOCNet deploy prototxt file.')
+	parser.add_argument('--gpu_id', '-gpu', action='store', type=int, 
+						help='The ID of the GPU to use. If not specified, training is run in CPU mode.')
 	args = vars(parser.parse_args())
 	main(**args)
 	
