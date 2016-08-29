@@ -10,8 +10,8 @@ if __name__ == '__main__':
     parser.add_argument('--phoc_size', '-ps', action='store', type=int, default=604,
                         help='The dimensionality of the PHOC. Default: 604')
     args = vars(parser.parse_args())
-    proto = ModelProtoGenerator().get_phocnet(word_image_lmdb_path=None, phoc_lmdb_path=None, 
-                                              phoc_size=args['phoc_size'], generate_deploy=True)
+    proto = ModelProtoGenerator(use_cudnn_engine=False).get_phocnet(word_image_lmdb_path=None, phoc_lmdb_path=None, 
+                                                                    phoc_size=args['phoc_size'], generate_deploy=True)
     with open(os.path.join(args['output_dir'], 'deploy_phocnet.prototxt'), 'w') as deploy_file:
         deploy_file.write('#Deploy PHOCNet\n')
         deploy_file.write(str(proto))
