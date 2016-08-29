@@ -94,7 +94,7 @@ class PHOCNetEvaluation(object):
         test_strings = [word.get_transcription() for word in test_list] 
         qry_strings = list(sorted(set(test_strings)))
         qry_phocs = build_phoc(words=qry_strings, phoc_unigrams=phoc_unigrams, unigram_levels=phoc_unigram_levels, 
-                               split_character=phoc_unigram_levels, phoc_bigrams=bigrams, bigram_levels=bigram_levels)
+                               split_character=annotation_delimiter, phoc_bigrams=bigrams, bigram_levels=bigram_levels)
         self.logger.info('Calculating mAP...')
         mean_ap, _ = map_from_query_test_feature_matrices(query_features=qry_phocs, test_features=test_phocs, query_labels=qry_strings, 
                                                           test_labels=test_strings, metric=metric, drop_first=False)
