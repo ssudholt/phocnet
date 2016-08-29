@@ -91,3 +91,6 @@ ENV/
 # Eclipse stuff
 .project
 .pydevproject
+
+#Binary Proto Files
+*.binaryproto
