@@ -65,11 +65,11 @@ The PHOCNet library is able to process READ-style XML files for the training and
 The `image` value is always interpreted relative to the path specified with the `--doc_img_dir` parameter. 
 A number of sample XML files can be found under `experiments`. You can either use the sample XML files or create your own training and test XML files.
 
-If you want to train your own PHOCNet from scratch and you need to define a training and testing XML file. If you have your XMLs defined, you need to call the `train_phocnet.py` script under the tools folder. The minimally necessary parameters are
+If you want to train your own PHOCNet from scratch you need to define a training and testing XML file. If you have your XMLs defined, you need to call the `train_phocnet.py` script under the tools folder. The minimally necessary parameters are
 ```
 python phocnet_experiment.py --doc_img_dir <folder of the doc. images> --train_annotation_file <READ-style train XML> --test_annotation_file <READ-style test XML> --proto_dir <folder for protofiles> --lmdb_dir <folder for lmdbs>
 ```
-For fast training, the PHOCNet library makes use of LMDB database as input for Caffe. During the first run of an experiment, the LMDBs are created automatically. For this you need to specify where to save the LMDB files. Keep in mind that LMDBs can grow to over one TB. 
+For fast training, the PHOCNet library makes use of LMDB database as input for Caffe. During the first run of an experiment, the LMDBs are created automatically. For this you need to specify where to save the LMDB files. Keep in mind that LMDBs can easily grow to a couple of hundreds of GB. 
 After the first run, the created LMDBs are used in consecutive experiments for the same dataset.
 
 Once you have a trained PHOCNet or obtained one of our pretrained nets, you can evaluate it on the test data. For a Query-by-Example evaluation, simply call the `eval_phocnet.py` script in the tools folder with the following parameters
