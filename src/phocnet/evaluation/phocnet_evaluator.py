@@ -83,7 +83,7 @@ class PHOCNetEvaluation(object):
         self.logger.info('Predicting PHOCs for %d test words', len(test_list))
         test_phocs = self._net_output_for_word_list(word_list=test_list, cnn=phocnet, 
                                                     suppress_caffe_output=not debug_mode)
-        test_strings = [word.get_transcription() for word in word_list] 
+        test_strings = [word.get_transcription() for word in test_list] 
         qry_strings = list(sorted(set(test_strings)))
         qry_phocs = build_phoc(words=qry_strings, phoc_unigrams=phoc_unigrams, unigram_levels=phoc_unigram_levels, 
                                split_character=phoc_unigram_levels, phoc_bigrams=bigrams, bigram_levels=bigram_levels)
