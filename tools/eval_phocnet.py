@@ -87,6 +87,7 @@ class PHOCNetEvaluation(object):
         word_list = self._load_word_list_from_xml(word_xml_file, doc_img_dir)
         phocnet = self._load_pretrained_phocnet(phocnet_bin_path, gpu_id, debug_mode, 
                                                 deploy_proto_path, phoc_size)
+        self.logger.info('Predicting PHOCs for %d test words', len(word_list))
         phocs = self._net_output_for_word_list(word_list=word_list, cnn=phocnet,
                                                suppress_caffe_output=not debug_mode)
         self.logger.info('Calculating mAP...')
