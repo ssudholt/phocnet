@@ -78,6 +78,14 @@ class PHOCNetEvaluation(object):
             bigram_levels = [2]
             phoc_size += 100
         
+        # Set CPU/GPU mode
+        if gpu_id != None:
+            self.logger.info('Setting Caffe to GPU mode using device %d', gpu_id)
+            caffe.set_mode_gpu()
+            caffe.set_device(gpu_id)
+        else:
+            self.logger.info('Setting Caffe to CPU mode')
+            caffe.set_mode_cpu()
         phocnet = self._load_pretrained_phocnet(phocnet_bin_path, gpu_id, debug_mode, 
                                                 deploy_proto_path, phoc_size)
         self.logger.info('Predicting PHOCs for %d test words', len(test_list))
@@ -104,6 +112,14 @@ class PHOCNetEvaluation(object):
         if not no_bigrams:
             phoc_size += 100
         
+        # Set CPU/GPU mode
+        if gpu_id != None:
+            self.logger.info('Setting Caffe to GPU mode using device %d', gpu_id)
+            caffe.set_mode_gpu()
+            caffe.set_device(gpu_id)
+        else:
+            self.logger.info('Setting Caffe to CPU mode')
+            caffe.set_mode_cpu()
         phocnet = self._load_pretrained_phocnet(phocnet_bin_path, gpu_id, debug_mode, 
                                                 deploy_proto_path, phoc_size)
         self.logger.info('Predicting PHOCs for %d test words', len(test_list))
