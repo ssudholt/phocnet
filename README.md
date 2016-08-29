@@ -27,7 +27,10 @@ In order to use the PHOCNet library, you need to install the following dependenc
 - OpenCV/Python OpenCV Bindings
 
 ## Installation
-You need to install all dependencies listed under prerequisites. Additionally, you need to compile the supplied Caffe Submodule with Python. More information on how to compile Caffe can be found on the [Caffe Homepage](http://caffe.berkeleyvision.org/installation.html).
+You need to install all dependencies listed under prerequisites. Additionally, you need to compile the supplied Caffe Submodule. More information on how to compile Caffe can be found on the [Caffe Homepage](http://caffe.berkeleyvision.org/installation.html).
+
+## Trained PHOCNets
+Trained PHOCNets for the four George Washington cross validation splits are available [here](http://patrec.cs.tu-dortmund.de/cms/en/home/Resources/index.html). They were trained using the files under the `experiment/gw` folder. Each PHOCNet file has a size of approx. 278 MB.
 
 ## Usage
 You can either embed this code in your project and call the classes from there or use any auf the auxilliary scripts under the `tools` directory.
@@ -103,4 +106,8 @@ python eval_phocnet.py -h
 ```
 
 ### GPU/CPU
-The PHOCNet library can be run on GPUs as well as CPUs. GPU mode is activated if the parameter `--gpu_id` is passed to the experiment script with a valid GPU ID. If no GPU ID is specified, the experiment is run in CPU mode.
+The PHOCNet library can be run on GPUs as well as CPUs. For most scripts, GPU mode is activated if the parameter `--gpu_id` is passed to the experiment script with a valid GPU ID. If no GPU ID is specified, the experiment is run in CPU mode. If you embed part of the library into your own project, you need to activate the GPU mode yourself.
+```
+caffe.set_mode_gpu()
+caffe.set_device(0) # or whatever GPU you want to use
+```
