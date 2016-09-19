@@ -147,7 +147,7 @@ class PHOCNetTrainer(object):
             n_bigrams = 0         
             bigrams = None
             bigram_levels = None        
-        if not np.all(lmdbs_exist) or self.recreate_databases:     
+        if not np.all(lmdbs_exist) or self.recreate_lmdbs:     
             self.logger.info('Creating LMDBs...')  
                     
                 
