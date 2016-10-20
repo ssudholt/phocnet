@@ -6,12 +6,9 @@ PHOCNet is a Convolutional Neural Network for classifying document image attribu
 If you use the code for scientific purposes, please cite
 ```
 @inproceedings{Sudholt2016-PAD,
-   archivePrefix = {arXiv},
    arxivId = {arXiv:1604.00187v1},
+   booktitle = {International Conference on Frontiers in Handwriting Recognition},
    author = {Sudholt, Sebastian and Fink, Gernot A.},
-   booktitle = {arXiv:1604.00187v1},
-   eprint = {arXiv:1604.00187v1},
-   pages = {1--6},
    title = {{PHOCNet : A Deep Convolutional Neural Network for Word Spotting in Handwritten Documents}},
    year = {2016}
 }
