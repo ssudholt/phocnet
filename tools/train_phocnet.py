@@ -23,7 +23,7 @@ if __name__ == '__main__':
                       help='Flag indicating to run the PHOCNet training in debug mode.')
     # Caffe parameters
     parser.add_argument('--learning_rate', '-lr', action='store', type=float, default=0.0001, 
-                      help='The learning for SGD training. Default: 0.0001')
+                      help='The learning rate for SGD training. Default: 0.0001')
     parser.add_argument('--momentum', '-mom', action='store', type=float, default=0.9,
                       help='The momentum for SGD training. Default: 0.9')
     parser.add_argument('--step_size', '-ss', action='store', type=int, default=70000, 
