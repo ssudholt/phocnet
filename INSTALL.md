@@ -1,5 +1,5 @@
 # Installation
-The following installation instructions can be used for Debian (Jessie and up) and Ubuntu (16.04 and up) systems. It is assumed that CMake and GCC are already installed on your system. If CUDA 8.0 or higher is installed and found in the `PATH`, the PHOCNet library is compiled with GPU support
+The following installation instructions can be used for Debian- and Ubuntu-based systems. It is assumed that CMake and GCC are already installed on your system. If CUDA 8.0 or higher is installed and found in the `PATH`, the PHOCNet library is compiled with GPU support
 
 ## Install Dependency Packages
 First, you need to install all dependency packages. For the underlying Caffe implementation, the depending packages can be installed by:
@@ -12,7 +12,7 @@ For the PHOCNet library, the following additional Python packages are needed:
 sudo apt-get install python-opencv python-skimage python-sklearn python-scipy
 
 ```
-Additionally, you need the Python LMDB binding package. In Ubuntu this package can be installed from the package manager as well (`python-lmdb`). For Debian Jessie, you need to install it manually through `pip` or the [package index](https://pypi.python.org/pypi/lmdb).
+Additionally, you need the Python LMDB binding package. In Ubuntu this package can be installed from the package manager as well (`python-lmdb`). For Debian Jessie and lower, you need to install it manually through `pip` or the [package index](https://pypi.python.org/pypi/lmdb).
 
 If you wish to use CUDNN to speed up Caffe, you need to install it manually as well from [here](https://developer.nvidia.com/cudnn). This of course requires CUDA.
 
