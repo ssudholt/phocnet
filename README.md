@@ -15,7 +15,7 @@ If you use the code for scientific purposes, please cite
 ```
 
 ## Prerequisites
-In order to use the PHOCNet library, you need to install the following dependencies:
+THe PHOCNet library has the following dependencies:
 - Customized Caffe (supplied as submodule)
 - numpy
 - skimage
@@ -24,7 +24,7 @@ In order to use the PHOCNet library, you need to install the following dependenc
 - OpenCV/Python OpenCV Bindings
 
 ## Installation
-You need to install all dependencies listed under prerequisites. Additionally, you need to compile the supplied Caffe Submodule. More information on how to compile Caffe can be found on the [Caffe Homepage](http://caffe.berkeleyvision.org/installation.html).
+Please refer to the installation instructions on how to install the PHOCNet library and its dependencies.
 
 ## Trained PHOCNets
 Trained PHOCNets for the four George Washington cross validation splits are available [here](http://patrec.cs.tu-dortmund.de/cms/en/home/Resources/index.html). They were trained using the files under the `experiment/gw` folder. Each PHOCNet file has a size of approx. 278 MB. Note that the unigrams in the predicted PHOC are sorted by ASCII value, resulting in the order `0123456789abcdefghijklmnopqrstuvwxyz`. Thus the first 36 attributes in the predicted PHOC indicate the existance of the unigrams in the left part of the word image, starting at `0` and ending at `z`.
