@@ -35,4 +35,4 @@ python install.py -h
 ```
 
 ## Environment Variables
-Everything is setup now. For the library to work, all that is left to do is to add the `<PHOCNet install dir>/caffe/lib` directory to the `LD_BIRARY_PATH` and the `<PHOCNet install dir>/caffe/python` to your `PYTHONPATH`.
+Everything is setup now. For the library to work, all that is left to do is to add the `<PHOCNet install dir>/caffe/lib` directory to the `LD_BIRARY_PATH` and the `<PHOCNet install dir>/caffe/python` as well as the `<PHOCNet install dir>` to your `PYTHONPATH`.

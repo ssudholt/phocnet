@@ -1,7 +1,7 @@
 # PHOCNet
 ![PHOCNet Architecture](phocnet_architecture.png)
 
-PHOCNet is a Convolutional Neural Network for classifying document image attributes. This library was the base for generating the results in [PHOCNet: A Deep Convolutional Neural Network for Word Spotting in Handwritten Documents](http://patrec.cs.tu-dortmund.de/pubs/abstracts/Sudholt2016-PAD.htm)
+PHOCNet is a Convolutional Neural Network for classifying document image attributes. This Python library was the base for generating the results in [PHOCNet: A Deep Convolutional Neural Network for Word Spotting in Handwritten Documents](http://patrec.cs.tu-dortmund.de/pubs/abstracts/Sudholt2016-PAD.htm)
 
 If you use the code for scientific purposes, please cite
 ```
