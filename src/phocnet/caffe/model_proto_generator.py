@@ -14,7 +14,7 @@ class ModelProtoGenerator(object):
     '''
     Class for generating Caffe CNN models through protobuffer files.
     '''
-    def __init__(self, initialization='msra', use_cudnn_engine=True):
+    def __init__(self, initialization='msra', use_cudnn_engine=False):
         # set up the engines
         self.conv_engine = None
         self.spp_engine = None
