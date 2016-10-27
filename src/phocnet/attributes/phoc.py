@@ -76,10 +76,10 @@ def build_phoc(words, phoc_unigrams, unigram_levels,
     
     # iterate through all the words
     for word_index, word in enumerate(words):        
-        n = len(word)
-        
         if split_character is not None:
-            word = word.split(split_character)        
+            word = word.split(split_character)       
+
+	n = len(word) 
         for index, char in enumerate(word):
             char_occ = occupancy(index, n)
             if char not in char_indices:
