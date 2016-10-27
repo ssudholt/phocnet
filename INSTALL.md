@@ -4,7 +4,7 @@ The following installation instructions can be used for Debian- and Ubuntu-based
 ## Install Dependency Packages
 First, you need to install all dependency packages. For the underlying Caffe implementation, the depending packages can be installed by:
 ```
-sudo apt-get install libprotobuf-dev libleveldb-dev liblmdb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler libatlas-base-dev
+sudo apt-get install libprotobuf-dev libleveldb-dev liblmdb-dev libsnappy-dev libopencv-dev libhdf5-serial-dev protobuf-compiler libatlas-base-dev libgflags-dev libgoogle-glog-dev
 sudo apt-get install --no-install-recommends libboost-all-dev
 ```
 For the PHOCNet library, the following additional Python packages are needed:
