@@ -1,13 +1,22 @@
 # PHOCNet
 ![PHOCNet Architecture](phocnet_architecture.png)
 
-PHOCNet is a Convolutional Neural Network for classifying document image attributes. This Python library was the base for generating the results in [PHOCNet: A Deep Convolutional Neural Network for Word Spotting in Handwritten Documents](http://patrec.cs.tu-dortmund.de/pubs/abstracts/Sudholt2016-PAD.htm)
+PHOCNet is a Convolutional Neural Network for classifying document image attributes. This Python library was the base for generating the results in [PHOCNet: A Deep Convolutional Neural Network for Word Spotting in Handwritten Documents](http://patrec.cs.tu-dortmund.de/pubs/abstracts/Sudholt2016-PAD.htm) and [Evaluating Word String Embeddings and Loss Functions for CNN-based Word Spotting](http://patrec.cs.tu-dortmund.de/pubs/abstracts/Sudholt2017-EWS.htm).
 
 If you use the code for scientific purposes, please cite
 ```
+@inproceedings{Sudholt2017-EWS,
+   booktitle = {Proc. Int. Conf. on Document Analysis and Recognition},
+   author = {Sudholt, Sebastian and Fink, Gernot A.},
+   title = {{Evaluating Word String Embeddings and Loss Functions for CNN-based Word Spotting}},
+   year = {2017}
+}
+```
+or
+```
 @inproceedings{Sudholt2016-PAD,
    arxivId = {arXiv:1604.00187v2},
-   booktitle = {International Conference on Frontiers in Handwriting Recognition},
+   booktitle = {Proc. Int. Conf. on Frontiers in Handwriting Recognition},
    author = {Sudholt, Sebastian and Fink, Gernot A.},
    title = {{PHOCNet : A Deep Convolutional Neural Network for Word Spotting in Handwritten Documents}},
    year = {2016}
@@ -108,3 +117,7 @@ The PHOCNet library can be run on GPUs as well as CPUs. For most scripts, GPU mo
 caffe.set_mode_gpu()
 caffe.set_device(0) # or whatever GPU you want to use
 ```
+
+### TPP-PHOCNet
+The TPP layer introduced in [Evaluating Word String Embeddings and Loss Functions for CNN-based Word Spotting](http://patrec.cs.tu-dortmund.de/pubs/abstracts/Sudholt2017-EWS.htm) has been added to the repository. When updating, make sure to update the supplied `caffe` submodule as well and rebuilding it to enable the use of the TPP layer.
+The TPP-PHOCNet architecture has been added to the proto generator file at `src/phocnet/caffe/model_proto_generator.py` and can be used whereever the PHOCNet was previously used.
