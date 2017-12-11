@@ -23,6 +23,8 @@ or
 }
 ```
 
+If you're interested in a PyTorch implementation, George Retsinas has made his port available [here | https://github.com/georgeretsi/pytorch-phocnet].
+
 ## Prerequisites
 THe PHOCNet library has the following dependencies:
 - Customized Caffe (supplied as submodule)
